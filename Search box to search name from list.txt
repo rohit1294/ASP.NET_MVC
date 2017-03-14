@@ -1,0 +1,56 @@
+from Week5Assign
+
+Search box to search name and deatil from list of data
+
+- JS Code
+
+//data filter for searching 
+$("#search").click(function () {
+    var ename = $("#textsearch").val();
+    var items = "<tr><th>Name</th><th>Email</th><th>Mobile</th><th>Marital Status</th><th>Action</th></tr>";
+    if (ename != "") {
+       
+        $.ajax({
+            type: 'GET',
+            data: 'ename=' + ename,
+            dataType: 'JSON',
+            url: 'AjaxRequestToList',
+            success: function (response) {
+                if (response != null) {
+                  
+                    $.each(response, function (i, item) {
+                        items += '<tr><td>' + item.name + '</td><td>' + item.email + '</td><td>' + item.mobile + '</td><td>' + item.maritalstatus + '</td><td><a href="edit/' +item.id+'">Edit</a></td></tr>';
+                    });
+                    $('#filterdata').html(items);
+                }
+
+            }
+        });
+    }
+    else
+        $('#filterdata').html(items);
+
+});
+
+- .cshtml View COde
+
+    <div class="col-md-8">
+        <span>Enter Name</span>
+        @Html.TextBox("textsearch", "", new { @class = "form-control" })
+        <input type="button" id="search" class="btn btn-primary" value="Search"/>
+    </div>
+
+- Controller code
+
+    // Ajax to Get List of Employees
+        public JsonResult AjaxRequestToList(string ename)
+        {
+            if (ename != "")
+            {
+                var employees = db.employee.Where(list => list.name == ename).ToList();
+                //var citiesList = new SelectList(cities.ToArray(), "Id", "cityName");
+                return Json(employees, JsonRequestBehavior.AllowGet);
+            }
+            else
+                return Json(null);
+        }

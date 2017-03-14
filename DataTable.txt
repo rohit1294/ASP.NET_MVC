@@ -1,0 +1,23 @@
+from  WEBAPI_clientsidetestPOSTMAN
+used while using ajax
+datatable provides pagination, searching, sorting columns
+
+1 * open console write  install-package jquery.datatables -version:1.10.11
+
+2 * goto bundle.config and add js and css files and link to layout.cshtml
+  -  JS files
+    "~/scripts/datatables/jquery.datatables.js",
+    "~/scripts/datatables/datatables.bootstrap.js "
+  -  CSS files
+    "~/content/datatables/css/datatables.bootstrap.css"
+
+3 * index.cshtml
+
+-  <script>
+     $(document).ready(function(){
+		$("#tableid").DataTable();
+	});
+   </script>
+
+- remove from body 
+    @foreach loop for data rendering as we are using ajax for listing all data entries

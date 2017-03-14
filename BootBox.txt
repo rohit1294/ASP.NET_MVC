@@ -1,0 +1,30 @@
+from  WEBAPI_clientsidetestPOSTMAN
+
+Bootbox.js
+//is used for giving style/design to popup box which comes when we click delete button to an entry 
+bootboxjs.com
+
+071-bootbox plug-in.mp4 video
+
+1 * console install-package bootbox -version:4.3.0
+
+2 * open bundle.config 
+	add to bundles/bootstrap
+	-  "~/scripts/bootbox.js"
+
+3 * script in index.cshtml 
+
+    bootbox.confirm("r u sure to delete?", function(result){
+		if(result)
+		{
+		  //delete ajax code 
+ 			$.ajax({
+			  url:"/api/customers/" + button.attr("data-customer-id")
+			  method: "DELETE",
+			  success:function()
+			   {//below line is when we are not using datatables
+			      button.parents("tr").remove();
+			   }
+			})
+		}
+	});

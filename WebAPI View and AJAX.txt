@@ -1,0 +1,202 @@
+from  WEBAPI_clientsidetestPOSTMAN
+
+//using api and ajax, we are using CURD operation  
+//using datatables with ajax source
+
+
+@model IEnumerable<WEBAPI_clientsidetestPOSTMAN.DTO.CustomerDTO>
+       @{ViewBag.Title="Customer Detail";
+         
+         }
+@*table for list of all data entry*@
+<button class="btn btn-danger" data-toggle="modal" data-target="#addbutton">Add Record</button>
+        <table id="tableid" class="table" >
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>BirthDate</th>
+                    <th> Mobile</th>
+                   <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody> 
+        </table>
+
+@*edit modal-dialog box form *@
+<div id="editbutton" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><span class="">Edit</span></h4>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                  <div class="col-md-offset-1 col-md-8">
+                      <span>Name</span>
+                      <input type="text" id="textname" class="form-control" />
+                      <span>BirthDate</span>
+                      <input type="text" id="textbirthdate" class="form-control" />
+                      <span>Mobile</span>
+                      <input type="text" id="textmobile" class="form-control" />
+                      <br />
+                      <button type="button" id="confirmedit" class="btn btn-danger">Confirm Edit</button>
+                  </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*Add modal-dialog box form*@
+<div id="addbutton" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><span class="">Add</span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-offset-1 col-md-8">
+                        <span>Name</span>
+                        <input type="text" id="addname" class="form-control" />
+                        <span>BirthDate</span>
+                        <input type="text" id="addbirthdate" class="form-control" />
+                        <span>Mobile</span>
+                        <input type="text" id="addmobile" class="form-control" />
+                        <br />
+                        <button type="button" id="confirmadd" class="btn btn-danger">Save Record</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+   @Scripts.Render("~/bundles/datatablejs")
+    <script>
+        $(document).ready(function () {
+            //show the list of all entries in browser
+           var table = $("#tableid").DataTable//after installing datatable 1.10.11 version form console and adding to bundles
+           	we put DataTable in table variable bcz we want that after deleting record the record can be searched in table 
+	   ({
+                ajax: {
+                    url: "http://localhost:58149/customers/list",
+                    dataSrc:""
+                },
+                columns: [
+                    {
+                        data: "name",
+                        render: function (data, type, customer)
+                        {
+                            return '<a href=customers/edit/'+customer.id+'>'+data+'</a>';
+                        }
+                    },
+                    {
+                        data: "birthdate",
+                        render: function(data)
+                        {
+                            var dat = new Date(data);
+                            return dat.getDate() + "/" + dat.getMonth() + "/" + dat.getFullYear();
+                        }
+                    },
+                    {
+                        data:"mobile"
+                    },
+                   {
+                       render: function (data, type, customer) {
+                           return '<button class="btn btn-warning edit-js"  data-toggle="modal" data-target="#editbutton" data-customer-id="' + customer.id + '">Edit</button> <button class="btn btn-danger delete-js"  data-customer-id="' + customer.id + '">Delete</button>';
+                       }
+                   }
+                ]
+            });
+            //deleting entry
+            $("#tableid").on("click", ".delete-js", function () {
+                var button = $(this);
+                bootbox.confirm("Sure to DELETE this Record?", function (result) {
+                    if (result)
+                    {
+                        $.ajax({
+                            url: "/Customers/delete/" + button.attr("data-customer-id"),
+                            method: "DELETE",
+                            success: function () {
+                               
+                                table.row(button.parents("tr")).remove().draw();
+                               // location.reload();
+
+                               // button.parents("tr").remove();
+                            }
+                        });
+                    }
+                });
+            });
+
+            //retriving data of particular id
+            //table-id                button-id
+            $("#tableid").on("click", ".edit-js", function () {
+                var button = $(this);
+                //     clicked button is accessed by 'this' keyword
+               //button-var.attr("custom atribute name")
+                if (button.attr("data-customer-id") != null) {
+                    $.ajax({
+
+                            url: "/Customers/get/"+ button.attr("data-customer-id"),
+
+                            method: "GET",
+                            success: function (receive) {
+                                $("#textname").val(receive.name);
+                                $("#textbirthdate").val(receive.birthdate);
+                                $("#textmobile").val(receive.mobile);
+                                $("#confirmedit").attr("data-customer-id", receive.id);
+                            }
+                        });
+                    }
+                });
+          
+          //editing added entry
+            $("#confirmedit").on("click", function () {
+            var button = $(this);
+           
+           
+                $.ajax({
+                    url: "/Customers/edit/"+ button.attr("data-customer-id"),
+                    method: "PUT",
+                    data: {
+                        Name: $("#textname").val(),
+                        BirthDate: $("#textbirthdate").val(),
+                        Mobile: $("#textmobile").val()
+                    },
+                    success:function(response){
+                        bootbox.alert("Data Edited");
+                    }  
+                });
+            });
+        //adding new entry 
+            $("#confirmadd").on("click", function () {
+                //var button = $(this);
+               
+                    $.ajax({
+
+                        url: "/Customers/add",
+                        method: "POST",
+                        data: {
+                            Name: $("#addname").val(),
+                            BirthDate: $("#addbirthdate").val(),
+                            Mobile: $("#addmobile").val()
+                        },
+                        success: function (response) {
+                            bootbox.alert("Record Saved");
+                        }
+                    });
+            });
+        });
+    </script>
+}

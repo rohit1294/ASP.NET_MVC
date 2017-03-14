@@ -1,0 +1,77 @@
+test4/test4User folder
+
+- field validation with custom validation too. Email Validation
+- showing default thumbnail and image preview of selected image  (goodworking)
+- saving name in DB and saving image in database(Image folder of Project) 
+- filter the options of a dropdown list using another dropdown list 
+     (use ienumerable in model and add data manually)//NOT ADDED YET
+http://stackoverflow.com/questions/10304489/how-to-filter-the-options-of-a-drop-down-list-using-another-drop-down-list
+- datepicker with disabling future date selection
+- reset Button
+- 
+
+projecttest2 folder
+
+- checkBox Value saving not in Database but saving and retriving
+- saving name in DB and saving image in database(Image folder of Project)
+- image preview of selected image  (not prefect showing image )
+- saving name in DB and saving image in database(Image folder of Project)
+
+MVC_Demo_ChkSelect
+
+- done in empty mvc with no EF used
+- checkbox value saving using enum in model and foreach loop in create.cshtml(View)
+- glyphicon icon in textbox
+- dropdown box
+- good code and control flow
+
+EShopSite1 folder
+
+- shopping website
+- 
+//from here, not written in project view index
+EShopSite2 folder
+
+- image preview in product registration form 
+- fitting image in box so that it covers all space and adjust automatically in view->productdetails->details page
+- code to do above write in View
+ <div class="product col-md-3 service-image-left" style="position:relative;margin:5px,auto;height:355px;width:275px;padding:15px; border:0px">
+     <center>
+         <img src="~/Images/@Html.DisplayFor(model => model.image)" alt="" style="position:absolute;bottom:0px;left:0px;right:0px;
+                                top:0px;margin:auto;max-height:100%;max-width:100%;" class="img-responsive coupon-img img-rounded" />
+     </center>
+ </div>
+- date-picker by pikaday
+
+formvalidation1
+
+- dropdown in customer form 
+
+Week5Assign
+
+- showing check box in index page for marital status by choosing bool datatype in model
+- and in view in employee/index of marital status write true and false
+   
+   <span>Married </span>@Html.RadioButtonFor(model=>model.maritalstatus,true)
+   <span>Unmarried </span>@Html.RadioButtonFor(model => model.maritalstatus, false)
+   @*@Html.EditorFor(model => model.maritalstatus, new { @class = "form-control" })*@
+   @Html.ValidationMessageFor(model => model.maritalstatus)
+
+- search name from table using searching box 
+- show image preview after selecting
+- mobile/phone number validation for only 10/ten digit number inserting
+- filtering dropdown (working) using ajax. 
+- after selecting state, city is filtered to select
+- reset button is used  
+- toastr(toastr not used. it is done by tempdata) or popup or message is shown after successful adding of employee
+- DataTable(DataTable not used. done by js) for sorting list by name, marial status, email etc
+
+WEBAPI_clientsidetestPOSTMAN
+
+- use of DataTable which provides searching box with realtime search, pagination, sorting table entries
+- everything done by Ajax Single index page where we edit, delete, add everything done.
+- made API controller for CURD Operation and in MVC Controller we just make variable to save data coming from mapper CustomerDTO to Customer and Vice-Versa
+- steps of CURD operation using API Ajax are shown in another Txt file	 
+
+
+

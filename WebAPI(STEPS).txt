@@ -1,0 +1,151 @@
+WebAPI -- basic operations of Camel Casing, Attribute Routing, Operation on GET, POST, PUT, DELETE
+using POSTMAN Extension of Chrome
+* Camel Case Configuring and Enabling Attribute Routing
+
+	open WebApiConfig.cs
+
+	 public static void Register(HttpConfiguration config)
+        {
+            // Web API configuration and services
+            
+            //camel casing data entry names like firstName, age, emailId
+            var setting = config.Formatters.JsonFormatter.SerializerSettings;
+            setting.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            setting.Formatting = Formatting.Indented;
+
+            // Web API routes
+            config.MapHttpAttributeRoutes();    
+	} 
+------------------------------------------------------------------------------------------------
+* Create a DTO class file in view and dont include in Context.cs class
+	-Create new folder in Project and create new class of DTO in it.
+	-DTO class will work as medium between model and controller/view
+	-DTO class and one class in model, both property will be same (like customer.cs having name, age property
+			then DTO will also have name, age property)
+	-Any change if required then will be made in DTO class not in class of model	
+------------------------------------------------------------------------------------------------           
+* creating MappingProfile.cs in App_Start
+	-//if we are mapping Customer to CustomerDTO and Vice-Versa
+
+    1-install AutoMapper in console => Install-Package AutoMapper -version:4.1	    
+
+   2-public class MappingProfile:Profile
+    {
+        public MappingProfile()
+        {
+            Mapper.CreateMap<Customer, CustomerDTO>();
+            Mapper.CreateMap<CustomerDTO, Customer>();
+        }
+    }
+  3- goto Golbal.asax.cs
+	 protected void Application_Start()
+        {
+            Mapper.Initialize(c => c.AddProfile<MappingProfile>());//add this line 
+------------------------------------------------------------------------------------------------
+* MVC Controller code for mediatind data from customer to customerDTO and Vice-versa
+
+ public class HomeController : Controller
+    {
+        private CustomerContext dbContext = new CustomerContext();
+        public ActionResult Index()
+        {//Mapping done between Customer and CustomerDTO 
+            var custdto = dbContext.customer.ToList().Select(Mapper.Map<Customer, CustomerDTO>);
+            return View(custdto);
+        }
+    }
+
+
+------------------------------------------------------------------------------------------------
+** ControllerAPI code of CURD Operation
+------------------------------------------------------------------------------------------------
+* GET Request to get all list 
+//return type will be IEnumerable only for showing list of all data
+	public IEnumerable<CustomerDTO> Get()
+        {
+            return dbContext.customer.ToList().Select(Mapper.Map<Customer,CustomerDTO>) ;
+          
+        }
+------------------------------------------------------------------------------------------------
+* GET Request to particular id 
+	
+	  [Route("Customers/Get/{id}")]
+        public IHttpActionResult Get(int? id)
+        {
+            if(id == null)
+            {
+                return BadRequest();
+            }
+           
+            Customer cust = dbContext.customer.Find(id);
+       
+            if(cust == null)
+                return NotFound();
+            //  sending data from customer To customerDTO
+            CustomerDTO custo = Mapper.Map<Customer, CustomerDTO>(cust);
+            return Ok<CustomerDTO>(custo);
+        }
+------------------------------------------------------------------------------------------------
+* POST Request to save data to DB
+
+	 //adding a customer record
+        // POST api/customers
+         [Route("Customers/add")]
+        public IHttpActionResult Post([FromBody]CustomerDTO customerss)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var customers = Mapper.Map<CustomerDTO, Customer>(customerss);
+            dbContext.customer.Add(customers);
+            dbContext.SaveChanges();
+            return Ok<CustomerDTO>(customerss);
+        }
+------------------------------------------------------------------------------------------------
+* PUT Request
+
+	  [Route("Customers/edit/{id}")]
+         public IHttpActionResult Put(int id,  [FromBody]CustomerDTO customerDTOparameter)
+         {
+             var customerid = dbContext.customer.Find(id);
+             if (customerid != null)
+             {
+                 customerid.Name = customerDTOparameter.Name;
+                 customerid.Mobile = customerDTOparameter.Mobile;
+                 customerid.Age = customerDTOparameter.Age;
+
+                 if (!ModelState.IsValid)
+                     return BadRequest();
+          
+                 dbContext.Entry(customerid).State = EntityState.Modified;
+                 dbContext.SaveChanges();
+		//sending data from Customer to CustomerDTO Variable
+		//type	     var of DTO type  mapping customer to DTO where customerid contains Customer Table's id 
+                 CustomerDTO customerDTOdata = Mapper.Map<Customer, CustomerDTO>(customerid);
+                 return Ok(customerDTOdata);
+             }
+             else
+                 return NotFound();
+         }
+------------------------------------------------------------------------------------------------
+* DELETE Request
+
+	  [Route("Customers/delete/{id}")]
+//return type will be always IHttpActionResult
+        public IHttpActionResult Delete(int id)
+        {//Linq query to search id in Customer DB 
+	  // type   var     obj of Context.Dbset Obj of Customer.Find(column to which we have to find)
+            Customer customers = dbContext.customer.Find(id);
+             if(customers == null)
+             {
+                 return NotFound();
+             }
+             //to show deleted data we are saving it in var name removed
+		Customer removed = customers;
+		//removing data from customer table 
+            dbContext.customer.Remove(customers);
+	//saving changing made in DB
+            dbContext.SaveChanges();
+            return Ok(removed);
+        }
+------------------------------------------------------------------------------------------------
+

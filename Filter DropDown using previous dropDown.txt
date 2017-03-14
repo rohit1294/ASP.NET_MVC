@@ -1,0 +1,69 @@
+from Week5Assign
+
+filtering dorpdown list using previous dropdown selection
+
+- JS Code
+
+//ajax code for filtering dropdown of state and city
+
+$('#stateid').on('change', function () {
+        var sid = $(this).val();
+        if (sid != "") {
+            $.ajax({
+                type: 'GET',
+                url: 'AjaxCall',
+                data: { 'sid': sid },
+                datatype: 'json',
+                success: function (data) {
+                    var items = "";
+                    $.each(data, function (i, city) {
+                        items += '<option value="' + city.Value + '">' + city.Text + '</option>';
+                    });
+                    $('#cityid').html(items);
+                }
+            });
+        }
+        else {
+            $('#cityId').html("<option value=''>Select City</option>");
+        }
+});
+
+- .cshtml file 
+
+	   <div class="form-group">
+                @Html.LabelFor(model => model.stateid, "State", new { @class = "col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownList("stateid", null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.stateid)
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.cityid, "City", new { @class = "col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownList("cityid", null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.cityid)
+                </div>
+            </div>
+
+- controller code making ajax request
+
+ 	private EmployeeContext db = new EmployeeContext();
+
+        //Ajax and Json code for country and state selecting filter dropdown
+        public JsonResult AjaxCall(int sid)
+        {
+            try
+            {
+                if (sid != 0)
+                {
+                    var states = from s in db.city
+                                 where s.stateid == sid
+                                 select s;
+                    return Json(new SelectList(states.ToArray(), "id", "cityname"), JsonRequestBehavior.AllowGet);
+
+                }
+            }
+            catch (Exception ex) { }
+            return Json(null);
+        }

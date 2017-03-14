@@ -1,0 +1,33 @@
+from Week5Assign
+
+Sorting data of table by name, email, mobile number
+
+- JS Code
+
+//sorting list js code
+//'th' is table header beside which the glyphicon will be there for sorting table
+$('th').click(function () {
+			//table is class of table in view 
+    var table = $(this).parents('table').eq(0)
+    var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()))
+    this.asc = !this.asc
+    if (!this.asc) { rows = rows.reverse() }
+    for (var i = 0; i < rows.length; i++) { table.append(rows[i]) }
+})
+function comparer(index) {
+    return function (a, b) {
+        var valA = getCellValue(a, index), valB = getCellValue(b, index)
+        return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.localeCompare(valB)
+    }
+}
+function getCellValue(row, index) { return $(row).children('td').eq(index).html() }
+
+- view part .cshtml file
+<table class="table" id="filterdata">
+    <tr>
+ <th>
+    @Html.DisplayNameFor(model => model.name)
+    <span class="glyphicon glyphicon-resize-vertical" style="cursor:pointer"></span>
+ </th>
+   </tr>
+

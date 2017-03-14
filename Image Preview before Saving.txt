@@ -1,0 +1,109 @@
+from Week5Assign
+
+previewing browsed and selected image in box
+
+- JS Code
+
+function readURL(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            $('#imageUpload').attr('src', e.target.result);
+        }
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+$("#file").change(function () {
+    readURL(this);
+});
+
+- .cshtml View Code
+
+@using (Html.BeginForm("Create", "Employees", FormMethod.Post,
+    new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Employee Portal</h4>
+        <hr />
+        @Html.ValidationSummary(true)
+        <div class="col-md-4">
+            <div class="col-md-10">
+                <div class="thumbnail" style="border:none">
+													//thumbnail image for default view
+                    <img id="imageUpload" style="width:240px;height:150px;" class="img-rounded col-md-6" src="~/Images/imagepreview.png" alt="" />
+                </div>
+            
+                <label class="btn btn-primary btn-file" style="margin-left:78px;">
+                    <i class="fa fa-file-image-o" aria-hidden="true"></i>&nbsp; Browse
+                    <input type="file" id="file" name="file" class="hidden" />
+                    @Html.ValidationMessageFor(model => model.image)
+                </label>
+
+
+            </div>
+        </div>
+</div>
+
+- Controller Code
+
+	[HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create([Bind(Include="id,name,email,mobile,maritalstatus,stateid,cityid,image")] Employee employee, FormCollection frm)
+        {
+		//Custom Server-Side validation
+            if(string.IsNullOrEmpty(employee.name))
+            {
+                ModelState.AddModelError("name", "Name not Entered");
+            }
+            else if(string.IsNullOrWhiteSpace(employee.email))
+            {
+                ModelState.AddModelError("email", "Invalid Email Format");
+            }
+            else if(employee.mobile.ToString().Length==10)
+            {
+                ModelState.AddModelError("mobile", "Invalid Mobile Format");
+            }
+	   //code for image preview 
+            var imgPath = "";
+            var vir_path = "";
+            if (Request.Files.Count > 0)
+            {
+                var file = Request.Files[0];
+
+                if (file != null && file.ContentLength > 0)
+                {
+                    var fileName = Path.GetFileName(file.FileName);
+                    vir_path = fileName;
+                    var path = Path.Combine(Server.MapPath("~/Images/"), fileName);
+                    imgPath = path;
+                    file.SaveAs(imgPath);
+                }
+            }
+	   //till here
+            if (ModelState.IsValid)
+            {
+                employee.image = vir_path;//code for image preview 
+                db.employee.Add(employee);//code for image preview 
+                db.SaveChanges();
+                TempData["success"] = employee.name;//code to popup after add success data//write in create action Tempdata.keep(); if tempdata is not null now show in view
+                return (RedirectToAction("Create"));
+            }
+		//dropdown filtered using ajax
+            ViewBag.cityid = new SelectList(db.city, "id", "cityname", employee.cityid);
+            ViewBag.stateid = new SelectList(db.state, "id", "statename", employee.stateid);
+            return View(employee);
+        }
+
+
+
+
+
+
+
+
+
